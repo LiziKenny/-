@@ -1,10 +1,29 @@
-
-From python:3.9-alpine
-RUN apt-get upgrate && apt-get update -y
-RUN pip install Django==3.2
-RUN echo "\
-     Hello,\
-     World!"
-ADD . /app
-EXPOSE 8000
-ENTRYPOINT python /app/manage.py runserver 0.0.0.0:8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubedoom
+  name: kubedoom
+  namespace: kubedoom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubedoom
+  template:
+    metadata:
+      labels:
+        app: kubedoom
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+        - image: ghcr.io/storax/kubedoom:latest
+          env:
+            - name: NAMESPACE
+              value: default
+          name: kubedoom
+          ports:
+            - containerPort: 5900
+              name: vnc
